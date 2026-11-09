@@ -1,0 +1,71 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-11-04 14:40:58.013295",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "description",
+  "criterion_name",
+  "_description",
+  "weight",
+  "is_mandatory",
+  "minimum_requirement",
+  "evaluation_method"
+ ],
+ "fields": [
+  {
+   "fieldname": "description",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "criterion_name",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "T\u00ean ti\u00eau ch\u00ed",
+   "reqd": 1
+  },
+  {
+   "fieldname": "_description",
+   "fieldtype": "Small Text"
+  },
+  {
+   "fieldname": "weight",
+   "fieldtype": "Percent",
+   "in_list_view": 1,
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_mandatory",
+   "fieldtype": "Check"
+  },
+  {
+   "fieldname": "minimum_requirement",
+   "fieldtype": "Data"
+  },
+  {
+   "fieldname": "evaluation_method",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "options": "CV Review\nInterview\nTechnical Test\nReference Check",
+   "reqd": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-11-04 15:23:40.516991",
+ "modified_by": "Administrator",
+ "module": "Duongtest",
+ "name": "Recruitment Criterion",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

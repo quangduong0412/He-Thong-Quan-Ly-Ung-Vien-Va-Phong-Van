@@ -1,0 +1,147 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-11-05 16:18:00.835061",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "interview_",
+  "interviewer",
+  "job_applicant",
+  "feedback_details",
+  "total_score",
+  "is_submitted",
+  "recommendation",
+  "overall_comment",
+  "th\u1eddi_\u0111i\u1ec3m_g\u1eedi",
+  "submitted_at",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "interview_",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Ph\u1ecfng v\u1ea5n",
+   "options": "Interview",
+   "reqd": 1
+  },
+  {
+   "fieldname": "interviewer",
+   "fieldtype": "Link",
+   "label": "Ng\u01b0\u1eddi ph\u1ecfng v\u1ea5n",
+   "options": "User",
+   "read_only": 1
+  },
+  {
+   "fieldname": "job_applicant",
+   "fieldtype": "Link",
+   "label": "\u1ee8ng vi\u00ean xin vi\u1ec7c",
+   "options": "Job Applicant",
+   "read_only": 1
+  },
+  {
+   "fieldname": "feedback_details",
+   "fieldtype": "Table",
+   "label": "Chi ti\u1ebft ph\u1ea3n h\u1ed3i",
+   "options": "Interview Feedback Criterion",
+   "reqd": 1
+  },
+  {
+   "fieldname": "total_score",
+   "fieldtype": "Float",
+   "label": "T\u1ed5ng \u0111i\u1ec3m",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_submitted",
+   "fieldtype": "Check",
+   "label": "\u0110\u00e3 g\u1eedi",
+   "read_only": 1
+  },
+  {
+   "fieldname": "recommendation",
+   "fieldtype": "Select",
+   "in_list_view": 1,
+   "label": "S\u1ef1 gi\u1edbi thi\u1ec7u",
+   "options": "Strong Hire\nHire\nConsider\nNo Hire\nStrong No Hire",
+   "reqd": 1
+  },
+  {
+   "fieldname": "overall_comment",
+   "fieldtype": "Small Text",
+   "in_list_view": 1,
+   "label": "Nh\u1eadn x\u00e9t chung",
+   "read_only": 1
+  },
+  {
+   "fieldname": "th\u1eddi_\u0111i\u1ec3m_g\u1eedi",
+   "fieldtype": "Datetime",
+   "label": "Th\u1eddi \u0111i\u1ec3m g\u1eedi",
+   "read_only": 1
+  },
+  {
+   "fieldname": "submitted_at",
+   "fieldtype": "Datetime",
+   "label": "Th\u1eddi \u0111i\u1ec3m g\u1eedi",
+   "read_only": 1
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Interview Feedback",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-11-06 15:08:19.763400",
+ "modified_by": "Administrator",
+ "module": "Duongtest",
+ "name": "Interview Feedback",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "read": 1,
+   "role": "HR Officer",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "read": 1,
+   "role": "HR Manager",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "if_owner": 1,
+   "read": 1,
+   "role": "Interviewer",
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

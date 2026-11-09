@@ -1,0 +1,56 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-11-05 16:05:09.293649",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "interviewer",
+  "interviewer_role",
+  "is_lead_interviewer",
+  "feedback_submitted"
+ ],
+ "fields": [
+  {
+   "fieldname": "interviewer",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Ng\u01b0\u1eddi ph\u1ecfng v\u1ea5n",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "interviewer_role",
+   "fieldtype": "Data",
+   "label": "Vai tr\u00f2 ng\u01b0\u1eddi ph\u1ecfng v\u1ea5n"
+  },
+  {
+   "default": "0",
+   "fieldname": "is_lead_interviewer",
+   "fieldtype": "Check",
+   "label": "Ch\u00ednh ng\u01b0\u1eddi ph\u1ecfng v\u1ea5n"
+  },
+  {
+   "default": "0",
+   "fieldname": "feedback_submitted",
+   "fieldtype": "Check",
+   "label": "\u0110\u00e3 g\u1eedi ph\u1ea3n h\u1ed3i",
+   "read_only": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2026-11-05 16:15:12.312969",
+ "modified_by": "Administrator",
+ "module": "Duongtest",
+ "name": "Interviewer Assignment",
+ "owner": "Administrator",
+ "permissions": [],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

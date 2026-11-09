@@ -1,0 +1,28 @@
+{
+ "add_total_row": 0,
+ "add_translate_data": 0,
+ "columns": [],
+ "disable_prepared_report_automation": 0,
+ "disabled": 0,
+ "doctype": "Report",
+ "filters": [],
+ "is_standard": "Yes",
+ "module": "Duongtest",
+ "name": "Recruitment Lead Time Report",
+ "prepared_report": 0,
+ "query": "SELECT\n    ja.position_title AS \"Vị trí:Data:180\",\n    ja.department AS \"Phòng ban:Link/Department:160\",\n    COUNT(ja.name) AS \"Tổng ứng viên:Int:120\",\n    COUNT(first_interview.first_interview_at) AS \"Đã phỏng vấn:Int:120\",\n    ROUND(AVG(TIMESTAMPDIFF(SECOND, ja.creation, first_interview.first_interview_at) / 86400), 2) AS \"TB nhận hồ sơ đến phỏng vấn đầu tiên (ngày):Float:220\",\n    COUNT(offer.offer_sent_at) AS \"Đã gửi offer:Int:120\",\n    ROUND(AVG(TIMESTAMPDIFF(SECOND, ja.creation, offer.offer_sent_at) / 86400), 2) AS \"TB nhận hồ sơ đến gửi offer (ngày):Float:220\",\n    COUNT(hire.hired_at) AS \"Đã tuyển:Int:100\",\n    ROUND(AVG(TIMESTAMPDIFF(SECOND, ja.creation, hire.hired_at) / 86400), 2) AS \"TB nhận hồ sơ đến tuyển (ngày):Float:220\"\nFROM `tabJob Applicant` ja\nLEFT JOIN (\n    SELECT job_applicant, MIN(start_time) AS first_interview_at\n    FROM `tabInterview`\n    WHERE status IN ('In Progress', 'Completed')\n    GROUP BY job_applicant\n) first_interview ON first_interview.job_applicant = ja.name\nLEFT JOIN (\n    SELECT job_applicant, MIN(sent_at) AS offer_sent_at\n    FROM `tabJob Offer`\n    WHERE sent_at IS NOT NULL\n        AND offer_status IN ('Sent', 'Accepted', 'Declined', 'Expired')\n    GROUP BY job_applicant\n) offer ON offer.job_applicant = ja.name\nLEFT JOIN (\n    SELECT job_applicant, MIN(accepted_at) AS hired_at\n    FROM `tabJob Offer`\n    WHERE offer_status = 'Accepted'\n        AND accepted_at IS NOT NULL\n    GROUP BY job_applicant\n) hire ON hire.job_applicant = ja.name\nGROUP BY ja.position_title, ja.department\nORDER BY ja.position_title, ja.department",
+ "ref_doctype": "Job Applicant",
+ "report_type": "Query Report",
+ "roles": [
+  {
+   "role": "HR Officer"
+  },
+  {
+   "role": "HR Manager"
+  },
+  {
+   "role": "System Manager"
+  }
+ ],
+ "timeout": 0
+}

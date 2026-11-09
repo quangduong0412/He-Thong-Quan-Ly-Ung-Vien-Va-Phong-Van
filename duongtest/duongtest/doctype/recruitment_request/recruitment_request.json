@@ -1,0 +1,204 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2026-11-04 15:08:15.668315",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "request_title",
+  "requester_",
+  "request_date",
+  "department_",
+  "recruitment_category",
+  "position_title",
+  "number_of_employees",
+  "hired_employee_count",
+  "is_fulfilled",
+  "expected_start_date",
+  "employment_type",
+  "priority",
+  "reason",
+  "job_description",
+  "minimum_salary",
+  "maximum_salary",
+  "table_rvqn",
+  "workflow_state",
+  "rejection_reason",
+  "revision_note",
+  "amendment_reason",
+  "amended_from"
+ ],
+ "fields": [
+  {
+   "fieldname": "request_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Request Title",
+   "no_copy": 1,
+   "print_hide": 1,
+   "reqd": 1
+  },
+  {
+   "fieldname": "requester_",
+   "fieldtype": "Link",
+   "label": "Requester",
+   "options": "User"
+  },
+  {
+   "default": "Today",
+   "fieldname": "request_date",
+   "fieldtype": "Date",
+   "label": "Request Date"
+  },
+  {
+   "fieldname": "department_",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Department",
+   "options": "Department",
+   "reqd": 1
+  },
+  {
+   "fieldname": "recruitment_category",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Recruitment Category",
+   "options": "Recruitment Category"
+  },
+  {
+   "fieldname": "position_title",
+   "fieldtype": "Data",
+   "in_list_view": 1,
+   "label": "Position Title",
+   "reqd": 1
+  },
+  {
+   "fieldname": "number_of_employees",
+   "fieldtype": "Int",
+   "label": "Number of Employees",
+   "reqd": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "hired_employee_count",
+   "fieldtype": "Int",
+   "label": "Hired Employees",
+   "read_only": 1
+  },
+  {
+   "default": "0",
+   "fieldname": "is_fulfilled",
+   "fieldtype": "Check",
+   "label": "Hiring Target Fulfilled",
+   "read_only": 1
+  },
+  {
+   "fieldname": "expected_start_date",
+   "fieldtype": "Date",
+   "label": "Expected Start Date",
+   "reqd": 1
+  },
+  {
+   "fieldname": "employment_type",
+   "fieldtype": "Select",
+   "label": "Employment Type",
+   "options": "Full-time\nPart-time\nContract\nInternship",
+   "reqd": 1
+  },
+  {
+   "fieldname": "priority",
+   "fieldtype": "Select",
+   "label": "Priority",
+   "options": "Low\nNormal\nHigh\nUrgent",
+   "reqd": 1
+  },
+  {
+   "fieldname": "reason",
+   "fieldtype": "Small Text",
+   "label": "Reason",
+   "reqd": 1
+  },
+  {
+   "fieldname": "job_description",
+   "fieldtype": "Text Editor",
+   "label": "Job Description",
+   "reqd": 1
+  },
+  {
+   "fieldname": "minimum_salary",
+   "fieldtype": "Currency",
+   "label": "Minimum_Salary"
+  },
+  {
+   "fieldname": "maximum_salary",
+   "fieldtype": "Currency",
+   "label": "Maximum Salary"
+  },
+  {
+   "fieldname": "table_rvqn",
+   "fieldtype": "Table",
+   "options": "Recruitment Criterion"
+  },
+  {
+   "fieldname": "workflow_state",
+   "fieldtype": "Link",
+   "label": "Workflow State",
+   "options": "Workflow State"
+  },
+  {
+   "fieldname": "rejection_reason",
+   "fieldtype": "Small Text",
+   "label": "Rejection Reason"
+  },
+  {
+   "fieldname": "revision_note",
+   "fieldtype": "Small Text",
+   "label": "Revision Note"
+  },
+  {
+   "fieldname": "amendment_reason",
+   "fieldtype": "Small Text",
+   "label": "Amendment Reason"
+  },
+  {
+   "fieldname": "amended_from",
+   "fieldtype": "Link",
+   "label": "Amended From",
+   "no_copy": 1,
+   "options": "Recruitment Request",
+   "print_hide": 1,
+   "read_only": 1,
+   "search_index": 1
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "is_submittable": 1,
+ "links": [],
+ "modified": "2026-11-05 10:43:28.625726",
+ "modified_by": "nguyenquangduong04122005@gmail.com",
+ "module": "Duongtest",
+ "name": "Recruitment Request",
+ "owner": "Administrator",
+ "track_changes": 1,
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "export": 1,
+   "print": 1,
+   "read": 1,
+   "report": 1,
+   "role": "System Manager",
+   "share": 1,
+   "submit": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

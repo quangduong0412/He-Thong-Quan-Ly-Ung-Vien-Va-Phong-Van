@@ -1,0 +1,47 @@
+{
+ "add_total_row": 0,
+ "add_translate_data": 0,
+ "columns": [],
+ "creation": "2026-11-06 10:01:01.234049",
+ "disable_prepared_report_automation": 0,
+ "disabled": 0,
+ "docstatus": 0,
+ "doctype": "Report",
+ "doctype_to_sync": [],
+ "filters": [],
+ "idx": 0,
+ "is_standard": "Yes",
+ "letter_head": null,
+ "modified": "2026-11-06 14:07:39.445732",
+ "modified_by": "Administrator",
+ "module": "Duongtest",
+ "name": "Applicant Pipeline Report",
+ "owner": "Administrator",
+ "prepared_report": 0,
+ "query": "SELECT\n    rr.name AS \"Recruitment Request:Link/Recruitment Request:160\",\n    rr.position_title AS \"V\u1ecb tr\u00ed:Data:150\",\n    rr.department_ AS \"Ph\u00f2ng ban:Link/Department:130\",\n    COUNT(ja.name) AS \"T\u1ed5ng s\u1ed1 \u1ee9ng vi\u00ean:Int:120\",\n    SUM(CASE WHEN ja.applicant_status = 'New' THEN 1 ELSE 0 END) AS \"New:Int:80\",\n    SUM(CASE WHEN ja.applicant_status = 'Screening' THEN 1 ELSE 0 END) AS \"Screening:Int:90\",\n    SUM(CASE WHEN ja.applicant_status = 'Interview Scheduled' THEN 1 ELSE 0 END) AS \"Interview Scheduled:Int:120\",\n    SUM(CASE WHEN ja.applicant_status = 'Interviewing' THEN 1 ELSE 0 END) AS \"Interviewing:Int:100\",\n    SUM(CASE WHEN ja.applicant_status = 'Passed' THEN 1 ELSE 0 END) AS \"Passed:Int:80\",\n    SUM(CASE WHEN ja.applicant_status = 'Rejected' THEN 1 ELSE 0 END) AS \"Rejected:Int:80\",\n    SUM(CASE WHEN ja.applicant_status = 'Offer Sent' THEN 1 ELSE 0 END) AS \"Offer Sent:Int:90\",\n    SUM(CASE WHEN ja.applicant_status = 'Offer Declined' THEN 1 ELSE 0 END) AS \"Offer Declined:Int:110\",\n    SUM(CASE WHEN ja.applicant_status = 'Hired' THEN 1 ELSE 0 END) AS \"\u0110\u00e3 tuy\u1ec3n:Int:90\",\n    GREATEST(\n        rr.number_of_employees -\n        SUM(CASE WHEN ja.applicant_status = 'Hired' THEN 1 ELSE 0 END),\n        0\n    ) AS \"S\u1ed1 l\u01b0\u1ee3ng c\u00f2n thi\u1ebfu:Int:120\"\nFROM `tabRecruitment Request` rr\nLEFT JOIN `tabJob Applicant` ja\n    ON ja.recruitment_request = rr.name\nGROUP BY\n    rr.name,\n    rr.position_title,\n    rr.department_,\n    rr.number_of_employees\nORDER BY rr.modified DESC",
+ "ref_doctype": "Recruitment Request",
+ "report_name": "Applicant Pipeline Report",
+ "report_type": "Query Report",
+ "roles": [
+  {
+   "role": "System Manager"
+  },
+  {
+   "role": "Recruitment Requester"
+  },
+  {
+   "role": "Department Manager"
+  },
+  {
+   "role": "HR Officer/HR Manager"
+  },
+  {
+   "role": "HR Manager"
+  },
+  {
+   "role": "General Director"
+  }
+ ],
+ "snapshot_report": 0,
+ "timeout": 0
+}

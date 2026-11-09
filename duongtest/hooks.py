@@ -5,6 +5,9 @@ app_description = "test"
 app_email = "nguyenquangduong04122005@gmail.com"
 app_license = "mit"
 
+before_install = "duongtest.permissions.ensure_security_roles"
+before_migrate = ["duongtest.permissions.ensure_security_roles"]
+
 # Apps
 # ------------------
 
@@ -141,6 +144,24 @@ app_license = "mit"
 # has_permission = {
 # 	"Event": "frappe.desk.doctype.event.event.has_permission",
 # }
+permission_query_conditions = {
+	"Interview Feedback": "duongtest.permissions.get_interview_feedback_permission_query",
+	"Job Applicant": "duongtest.permissions.get_job_applicant_permission_query",
+	"Interview": "duongtest.permissions.get_interview_permission_query",
+}
+
+has_permission = {
+	"Interview Feedback": "duongtest.permissions.has_sensitive_record_permission",
+	"Job Applicant": "duongtest.permissions.has_sensitive_record_permission",
+	"Interview": "duongtest.permissions.has_sensitive_record_permission",
+	"File": "duongtest.permissions.has_sensitive_record_permission",
+}
+
+override_doctype_class = {
+	"File": "duongtest.overrides.SecureFile",
+}
+
+after_migrate = ["duongtest.permissions.secure_existing_cv_files"]
 
 # DocType Class
 # ---------------
@@ -263,4 +284,3 @@ app_license = "mit"
 # ------------
 # List of apps whose translatable strings should be excluded from this app's translations.
 # ignore_translatable_strings_from = []
-

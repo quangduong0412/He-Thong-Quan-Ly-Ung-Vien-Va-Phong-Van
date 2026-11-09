@@ -1,0 +1,73 @@
+{
+ "actions": [],
+ "creation": "2026-11-04 14:26:24.924713",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "default_recruitment_duration",
+  "maximum_requested_employees",
+  "require_salary_range",
+  "require_general_director_approval",
+  "allow_urgent_recruitment",
+  "default_hr_manager"
+ ],
+ "fields": [
+  {
+   "fieldname": "default_recruitment_duration",
+   "fieldtype": "Int",
+   "in_list_view": 1,
+   "label": "S\u1ed1 ng\u00e0y tuy\u1ec3n d\u1ee5ng ",
+   "reqd": 1
+  },
+  {
+   "fieldname": "maximum_requested_employees",
+   "fieldtype": "Int"
+  },
+  {
+   "default": "0",
+   "fieldname": "require_salary_range",
+   "fieldtype": "Check"
+  },
+  {
+   "default": "0",
+   "fieldname": "require_general_director_approval",
+   "fieldtype": "Check"
+  },
+  {
+   "default": "0",
+   "fieldname": "allow_urgent_recruitment",
+   "fieldtype": "Check"
+  },
+  {
+   "fieldname": "default_hr_manager",
+   "fieldtype": "Link",
+   "options": "User"
+  }
+ ],
+ "grid_page_length": 50,
+ "index_web_pages_for_search": 1,
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-11-04 15:15:55.811286",
+ "modified_by": "Administrator",
+ "module": "Duongtest",
+ "name": "Recruitment Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "System Manager",
+   "share": 1,
+   "write": 1
+  }
+ ],
+ "row_format": "Dynamic",
+ "rows_threshold_for_grid_search": 20,
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}

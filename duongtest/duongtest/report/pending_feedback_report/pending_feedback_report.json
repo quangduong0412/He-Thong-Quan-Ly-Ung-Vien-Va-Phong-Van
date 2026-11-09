@@ -1,0 +1,28 @@
+{
+ "add_total_row": 0,
+ "add_translate_data": 0,
+ "columns": [],
+ "disable_prepared_report_automation": 0,
+ "disabled": 0,
+ "doctype": "Report",
+ "filters": [],
+ "is_standard": "Yes",
+ "module": "Duongtest",
+ "name": "Pending Feedback Report",
+ "prepared_report": 0,
+ "query": "SELECT\n    i.name AS \"Interview:Link/Interview:160\",\n    ja.applicant_name AS \"Ứng viên:Data:180\",\n    u.full_name AS \"Người phỏng vấn:Data:180\",\n    i.start_time AS \"Thời gian phỏng vấn:Datetime:160\",\n    GREATEST(TIMESTAMPDIFF(SECOND, i.end_time, NOW()), 0) AS \"Thời gian quá hạn:Duration:150\"\nFROM `tabInterview` i\nINNER JOIN `tabInterviewer Assignment` ia\n    ON ia.parent = i.name\n    AND ia.parenttype = 'Interview'\n    AND ia.parentfield = 'interviewers'\nINNER JOIN `tabJob Applicant` ja\n    ON ja.name = i.job_applicant\nINNER JOIN `tabUser` u\n    ON u.name = ia.interviewer\nWHERE i.status = 'In Progress'\n    AND NOT EXISTS (\n        SELECT 1\n        FROM `tabInterview Feedback` f\n        WHERE f.interview_ = i.name\n            AND f.interviewer = ia.interviewer\n            AND f.is_submitted = 1\n    )\nORDER BY i.end_time ASC, i.name, u.full_name",
+ "ref_doctype": "Interview",
+ "report_type": "Query Report",
+ "roles": [
+  {
+   "role": "HR Officer"
+  },
+  {
+   "role": "HR Manager"
+  },
+  {
+   "role": "System Manager"
+  }
+ ],
+ "timeout": 0
+}
