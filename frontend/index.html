@@ -4,6 +4,12 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Hệ thống quản lý tuyển dụng</title>
+  <!--
+    Frappe render trang này bằng jinja (duongtest/www/duongtest.py): token CSRF của phiên + tài khoản đang đăng nhập.
+    Giữ dạng chuỗi JSON (tojson đã escape < > & ') để khi chạy `yarn dev` - trang chưa qua jinja - script vẫn hợp lệ
+    và BOOT trong src/auth.js nhận ra placeholder rồi hỏi backend (xem get_context_for_dev).
+  -->
+  <script>window.duongtest_boot = '{{ boot | tojson }}'</script>
   <link rel="stylesheet" href="%BASE_URL%styles/tokens.css">
   <link rel="stylesheet" href="%BASE_URL%styles/base.css">
   <link rel="stylesheet" href="%BASE_URL%styles/layout.css">
@@ -61,6 +67,7 @@
 <div id="drawer-root"></div>
 <!-- React component: ToastContainer -->
 <div id="toast-root" class="toast-root" aria-live="polite" aria-atomic="false"></div>
+  <script defer src="%BASE_URL%src/auth.js"></script>
   <script defer src="%BASE_URL%src/data.js"></script>
   <script defer src="%BASE_URL%src/state.js"></script>
   <script defer src="%BASE_URL%src/utils.js"></script>

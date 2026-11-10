@@ -86,14 +86,19 @@ var ACTIONS = {
   toggleMobileSearch(){ const h=$('#header'); h.classList.toggle('search-open'); if(h.classList.contains('search-open')) $('#global-search').focus(); },
   openUserMenu(el){
     const u = currentUser();
+    const real = SESSION && SESSION.role;
     openMenu(el, [
-      {html:`<div class="menu-user">${avatar(u.user)}<div class="person-text"><strong>${esc(u.user)}</strong><span>${esc(u.title)}</span></div></div>`},
-      {divider:true},{header:'Đổi vai trò (mô phỏng)'},
-      ...ROLES.map(r=>({label:labelVi(r.key), icon:'shield', action:'setRole', data:{role:r.key}, checked:r.key===state.role})),
+      {html:`<div class="menu-user">${avatarOf(u)}<div class="person-text"><strong>${esc(u.user)}</strong><span>${esc(u.title)}</span></div></div>`},
+      {divider:true},
+      {header: real ? 'Đổi vai trò (mô phỏng)' : 'Vai trò (mô phỏng)'},
+      ...ROLES.map(r=>({
+        label:labelVi(r.key), icon:'shield', action:'setRole', data:{role:r.key},
+        checked:r.key===state.role, hint:r.key===real?'vai trò thật':'',
+      })),
       {divider:true},
       {label:'Hồ sơ cá nhân', icon:'user', action:'mockProfile'},
       {label:state.theme==='dark'?'Giao diện sáng':'Giao diện tối', icon:state.theme==='dark'?'sun':'moon', action:'toggleTheme'},
-      {label:'Đăng xuất', icon:'logout', action:'mockSignout', danger:true},
+      {label:'Đăng xuất', icon:'logout', action:'signOut', danger:true},
     ], {width:270});
   },
   setRole(el){ closeMenu(); setRole(el.dataset.role); },
@@ -104,7 +109,15 @@ var ACTIONS = {
   markAllRead(){ NOTIFICATIONS.forEach(n=>n.unread=false); closeMenu(); renderHeader(); toast('success','Đã đánh dấu tất cả thông báo là đã đọc'); },
   openNotif(el){ const n=NOTIFICATIONS.find(x=>x.id==el.dataset.id); n.unread=false; closeMenu(); navigate(n.go[0], n.go[1]); },
   mockProfile(){ closeMenu(); toast('info','Hồ sơ','Trang hồ sơ cá nhân hiện nằm ngoài phạm vi bản mẫu.'); },
-  mockSignout(){ closeMenu(); confirmDialog({title:'Đăng xuất?', message:'Đây là bản mô phỏng — thao tác này chỉ minh họa.', confirmText:'Đăng xuất', tone:'danger'}).then(ok=>ok&&toast('info','Đã đăng xuất (mô phỏng)')); },
+  signOut(){
+    closeMenu();
+    const who = SESSION ? SESSION.id : null;
+    confirmDialog({
+      title:'Đăng xuất?',
+      message: who ? `Bạn sẽ đăng xuất khỏi tài khoản ${who} và quay về trang đăng nhập.` : 'Bạn sẽ quay về trang đăng nhập.',
+      confirmText:'Đăng xuất', tone:'danger',
+    }).then(ok=>{ if(ok){ toast('info','Đang đăng xuất…'); frappeLogout(); } });
+  },
   setTab(el){
     const ns=el.dataset.ns, t=el.dataset.tab;
     if(ns==='request'){ state.tab.request=t; render(); $(`#tab-request-${t}`).focus(); }

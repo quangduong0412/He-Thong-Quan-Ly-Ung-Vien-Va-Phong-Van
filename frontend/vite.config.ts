@@ -1,4 +1,5 @@
 /// <reference types="vitest" />
+import { createHash } from 'node:crypto'
 import { cpSync, mkdirSync, readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { resolve } from 'node:path'
@@ -11,13 +12,38 @@ function copyPrototypeAssets() {
   let outDir = ''
   const projectRoot = fileURLToPath(new URL('.', import.meta.url))
   const files = [
-    'main.js', 'data.js', 'state.js', 'utils.js', 'components.js', 'router.js', 'actions.js',
+    'auth.js', 'main.js', 'data.js', 'state.js', 'utils.js', 'components.js', 'router.js', 'actions.js',
   ]
+
+  /** Vân tay nội dung của một file nguồn; đổi khi file đổi, giữ nguyên khi không đổi. */
+  const fingerprint = (path: string): string | null => {
+    try {
+      return createHash('sha256').update(readFileSync(path)).digest('hex').slice(0, 8)
+    } catch {
+      return null
+    }
+  }
+
   return {
     name: 'copy-prototype-assets',
     apply: 'build' as const,
     configResolved(config: { build: { outDir: string } }) {
       outDir = config.build.outDir
+    },
+    /**
+     * Các script/style này được copy nguyên tên (không có hash trong tên) nhưng Frappe serve chúng với
+     * Cache-Control: max-age=43200. Nếu không có gì phân biệt, trình duyệt sẽ dùng bản cũ tới 12 tiếng sau
+     * khi deploy. Gắn ?v=<hash nội dung> vào URL: file nào đổi thì trình duyệt tải lại file đó, file không
+     * đổi vẫn được cache. Trang HTML luôn mới vì www/duongtest.py đặt no_cache = 1.
+     */
+    transformIndexHtml: {
+      order: 'post' as const,
+      handler(html: string) {
+        return html.replace(/(src|href)="([^"]*?\/((?:src|styles)\/[^"?]+\.(?:js|css)))"/g, (match, attr, url, relative) => {
+          const hash = fingerprint(resolve(projectRoot, relative))
+          return hash ? `${attr}="${url}?v=${hash}"` : match
+        })
+      },
     },
     closeBundle() {
       const source = resolve(projectRoot, 'src')

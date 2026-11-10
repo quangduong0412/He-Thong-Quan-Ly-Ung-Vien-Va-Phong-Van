@@ -56,6 +56,12 @@ var TONE = {
 /* React component: StatusBadge — luôn có chữ + chấm, không dùng màu làm tín hiệu duy nhất */
 function badge(text, tone, extraCls=''){ const t = tone || TONE[text] || 'neutral'; return `<span class="badge badge-${t} ${extraCls}"><span class="badge-dot" aria-hidden="true"></span>${esc(labelVi(text))}</span>`; }
 function avatar(name, size=''){ return `<span class="avatar ${size} av-${hash(name)%6}" aria-hidden="true">${esc(initials(name))}</span>`; }
+/** Ảnh đại diện của một người: dùng ảnh thật (User.user_image) nếu có, không thì chữ viết tắt. */
+function avatarOf(u, size=''){
+  return u && u.image
+    ? `<img class="avatar ${size} avatar-img" src="${esc(u.image)}" alt="" width="32" height="32">`
+    : avatar((u && u.user) || '', size);
+}
 function person(name, sub, size='sm'){ return `<div class="person">${avatar(name,size)}<div class="person-text"><strong>${esc(name)}</strong>${sub?`<span>${esc(labelVi(sub))}</span>`:''}</div></div>`; }
 function avatarStack(names){ return `<span class="avatar-stack" title="${esc(names.join(', '))}">${names.map(n=>avatar(n,'sm')).join('')}</span><span class="sr-only">${esc(names.join(', '))}</span>`; }
 function masked(label='Đã ẩn'){ return `<span class="masked" data-tip="Bạn không có quyền xem thông tin này">${icon('lock')}${esc(labelVi(label))}</span>`; }
@@ -270,8 +276,9 @@ function renderHeader(){
   $('#theme-btn').innerHTML = icon(state.theme==='dark'?'sun':'moon');
   $('#theme-btn').setAttribute('aria-label', state.theme==='dark'?'Chuyển sang giao diện sáng':'Chuyển sang giao diện tối');
   $('#theme-btn').setAttribute('data-tip', state.theme==='dark'?'Giao diện sáng':'Giao diện tối'); $('#theme-btn').setAttribute('data-tip-pos','bottom');
-  $('#user-btn').innerHTML = `${avatar(u.user)}<span class="user-meta"><strong>${esc(u.user)}</strong><span>${esc(labelVi(state.role))}</span></span>${icon('chevDown')}`;
-  $('#user-btn').setAttribute('aria-label', `Tài khoản: ${u.user}, vai trò ${labelVi(state.role)}`);
+  const sim = isSimulating() ? ' (mô phỏng)' : '';
+  $('#user-btn').innerHTML = `${avatarOf(u)}<span class="user-meta"><strong>${esc(u.user)}</strong><span>${esc(labelVi(state.role))}${sim}</span></span>${icon('chevDown')}`;
+  $('#user-btn').setAttribute('aria-label', `Tài khoản: ${u.user}, vai trò ${labelVi(state.role)}${sim}`);
   // Breadcrumb
   const crumbs = BREADCRUMBS[state.page] ? BREADCRUMBS[state.page]() : [{label:'Dashboard'}];
   const all = [{label:'Trang chủ',page:'dashboard'}, ...crumbs];

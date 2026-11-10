@@ -59,4 +59,8 @@ window.addEventListener('resize', ()=>{ const m=isMobile(); if(m!==lastMobile){ 
   document.documentElement.setAttribute('data-theme', state.theme);
   if(window.innerWidth < 1024 && window.innerWidth >= 768) state.collapsed = true;
   render();
+  // Đăng xuất / đổi tài khoản ở tab khác: khi quay lại tab thì kiểm phiên và tải lại trang
+  watchSession();
+  // `yarn dev`: trang chưa qua jinja nên boot phải hỏi backend, xong vẽ lại theo tài khoản thật
+  if(!SESSION) loadDevSession().then(render);
 })();

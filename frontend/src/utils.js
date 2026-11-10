@@ -322,5 +322,6 @@ var findReq = c => REQUESTS.find(r=>r.code===c);
 var findApp = c => APPLICANTS.find(a=>a.code===c);
 var findInt = c => INTERVIEWS.find(i=>i.code===c);
 var findOffer = c => OFFERS.find(o=>o.code===c);
-var currentUser = () => ROLES.find(r=>r.key===state.role);
+/** Người đang đăng nhập (phiên Frappe); khi chưa biết phiên (`yarn dev`) thì dùng người mẫu theo vai trò. */
+var currentUser = () => sessionPerson() || ROLES.find(r=>r.key===state.role);
 var isMobile = () => window.matchMedia('(max-width:767px)').matches;

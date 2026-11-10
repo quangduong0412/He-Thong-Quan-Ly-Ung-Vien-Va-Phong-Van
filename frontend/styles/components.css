@@ -121,6 +121,8 @@ input[type=checkbox],input[type=radio]{accent-color:var(--primary)}
 .avatar.sm{width:26px;height:26px;font-size:10.5px}
 .avatar.lg{width:56px;height:56px;font-size:19px}
 .av-0{background:#4f46e5}.av-1{background:#0e7490}.av-2{background:#b45309}.av-3{background:#be185d}.av-4{background:#15803d}.av-5{background:#6d28d9}
+/* Ảnh đại diện thật của tài khoản Frappe (avatarOf) — cùng kích thước với avatar chữ viết tắt */
+.avatar-img{object-fit:cover;background:var(--surface-2, var(--surface))}
 .avatar-stack{display:inline-flex}
 .avatar-stack .avatar{border:2px solid var(--surface);margin-left:-8px}
 .avatar-stack .avatar:first-child{margin-left:0}

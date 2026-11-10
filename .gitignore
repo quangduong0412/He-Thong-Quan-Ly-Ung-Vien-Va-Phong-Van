@@ -5,3 +5,7 @@
 tags
 node_modules
 __pycache__
+# Sinh ra khi build frontend (yarn build / bench build)
+duongtest/public/frontend/
+duongtest/www/duongtest.html
+frontend/dist/

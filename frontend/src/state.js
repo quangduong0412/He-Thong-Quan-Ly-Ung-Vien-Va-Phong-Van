@@ -7,7 +7,7 @@
 var DEFAULT_SETTINGS = {duration:45, maxEmployees:20, requireSalary:true, requireGD:true, allowUrgent:true, hrManager:'Vũ Ngọc Lan'};
 var state = {
   page:'dashboard', params:{},
-  role:'HR Manager',
+  role: sessionRole('HR Manager'),   // vai trò thật từ phiên Frappe (src/auth.js); 'HR Manager' là mặc định khi `yarn dev`
   theme:'light',
   collapsed:false,
   req:{filters:{search:'',state:'',dept:'',priority:'',empType:'',from:'',to:''}, page:1, size:10, simLoading:false, busy:false, selected:new Set(), showFilters:false},
