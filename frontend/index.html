@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hệ thống quản lý tuyển dụng</title>
+  <link rel="stylesheet" href="%BASE_URL%styles/tokens.css">
+  <link rel="stylesheet" href="%BASE_URL%styles/base.css">
+  <link rel="stylesheet" href="%BASE_URL%styles/layout.css">
+  <link rel="stylesheet" href="%BASE_URL%styles/components.css">
+  <link rel="stylesheet" href="%BASE_URL%styles/pages.css">
+  <link rel="stylesheet" href="%BASE_URL%styles/responsive.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Chuyển đến nội dung chính</a>
+
+<div class="app" id="app">
+  <!-- React component: Sidebar -->
+  <aside class="sidebar" id="sidebar" aria-label="Điều hướng chính">
+    <div class="sidebar-brand">
+      <div class="brand-logo" aria-hidden="true">
+        <svg class="ic" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
+      </div>
+      <div class="brand-text"><strong>RMS</strong><span>Quản lý tuyển dụng</span></div>
+    </div>
+    <nav class="sidebar-nav" id="sidebar-nav"></nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-footer-card"><strong style="color:var(--text)">Bản mô phỏng giao diện v1.0</strong><br>Dữ liệu mẫu · không kết nối máy chủ</div>
+    </div>
+  </aside>
+  <div class="sidebar-overlay" id="sidebar-overlay" data-action="closeMobileNav"></div>
+
+  <div class="main-area">
+    <!-- React component: AppHeader -->
+    <header class="header" id="header">
+      <button class="icon-btn" data-action="toggleSidebar" aria-label="Thu gọn hoặc mở rộng thanh bên" id="sidebar-toggle"></button>
+      <!-- React component: Breadcrumb -->
+      <nav class="breadcrumb" id="breadcrumb" aria-label="Đường dẫn điều hướng"></nav>
+      <!-- React component: SearchBox -->
+      <div class="header-search" id="header-search" role="search">
+        <span id="search-icon-slot"></span>
+        <input id="global-search" type="search" placeholder="Tìm ứng viên, yêu cầu, thư mời…" aria-label="Tìm kiếm toàn hệ thống" autocomplete="off" aria-controls="search-results">
+        <kbd aria-hidden="true">/</kbd>
+        <div class="search-results" id="search-results" hidden role="listbox" aria-label="Kết quả tìm kiếm"></div>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn mobile-only" data-action="toggleMobileSearch" aria-label="Mở tìm kiếm" id="mobile-search-btn"></button>
+        <button class="icon-btn" data-action="openNotifications" aria-label="Thông báo" aria-haspopup="menu" id="notif-btn"></button>
+        <button class="icon-btn" data-action="toggleTheme" aria-label="Chuyển sang giao diện tối" id="theme-btn"></button>
+        <button class="user-btn" data-action="openUserMenu" aria-haspopup="menu" id="user-btn" aria-label="Menu tài khoản"></button>
+      </div>
+    </header>
+
+    <main id="main" class="content" tabindex="-1"></main>
+  </div>
+</div>
+
+<!-- Shared overlay roots -->
+<div id="floating-menu" class="dropdown-menu" role="menu" hidden></div>
+<div id="modal-root"></div>
+<div id="drawer-root"></div>
+<!-- React component: ToastContainer -->
+<div id="toast-root" class="toast-root" aria-live="polite" aria-atomic="false"></div>
+  <script defer src="%BASE_URL%src/data.js"></script>
+  <script defer src="%BASE_URL%src/state.js"></script>
+  <script defer src="%BASE_URL%src/utils.js"></script>
+  <script defer src="%BASE_URL%src/components.js"></script>
+  <script defer src="%BASE_URL%src/pages/dashboard.js"></script>
+  <script defer src="%BASE_URL%src/pages/requests.js"></script>
+  <script defer src="%BASE_URL%src/pages/applicants.js"></script>
+  <script defer src="%BASE_URL%src/pages/interviews.js"></script>
+  <script defer src="%BASE_URL%src/pages/offers.js"></script>
+  <script defer src="%BASE_URL%src/pages/reports.js"></script>
+  <script defer src="%BASE_URL%src/pages/settings.js"></script>
+  <script defer src="%BASE_URL%src/router.js"></script>
+  <script defer src="%BASE_URL%src/actions.js"></script>
+  <script defer src="%BASE_URL%src/main.js"></script>
+</body>

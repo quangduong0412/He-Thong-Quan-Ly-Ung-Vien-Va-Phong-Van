@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    "resolveJsonModule": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+    "types": ["vite/client", "node"],
+    "baseUrl": ".",
+    "paths": {
+      "@assistant/protocol": ["src/lib/protocol/index.ts"],
+      "@assistant/protocol/testing": ["src/lib/protocol/testing/index.ts"],
+      "@assistant/core": ["src/lib/core/index.ts"],
+      "@assistant/extension-sdk": ["src/lib/extension-sdk/index.ts"],
+      "@assistant/ext-mhiring": ["src/lib/ext-mhiring/index.tsx"]
+    }
+  },
+  "include": ["src", "vite.config.ts"]
+}

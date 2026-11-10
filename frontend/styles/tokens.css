@@ -1,0 +1,63 @@
+/* =====================================================================
+   1. DESIGN TOKENS
+   Toàn bộ màu, bo góc, shadow, kích thước layout và spacing được khai báo
+   tại đây. Dark mode chỉ ghi đè lại các biến này (không viết lại CSS).
+   ===================================================================== */
+:root{
+  /* Brand / semantic colors */
+  --primary:#4338ca; --primary-hover:#3730a3; --primary-active:#312e81;
+  --primary-soft:#eef2ff; --primary-text:#3730a3; --on-primary:#ffffff;
+  --success:#15803d; --success-soft:#dcfce7; --success-text:#166534; --on-success:#ffffff;
+  --warning:#d97706; --warning-soft:#fef3c7; --warning-text:#92400e;
+  --danger:#dc2626; --danger-hover:#b91c1c; --danger-soft:#fee2e2; --danger-text:#991b1b; --on-danger:#ffffff;
+  --info:#2563eb; --info-soft:#dbeafe; --info-text:#1e40af;
+  --neutral-soft:#eef1f5; --neutral-text:#475569;
+
+  /* Surfaces & text */
+  --bg:#f5f6fa; --surface:#ffffff; --surface-2:#f8fafc; --surface-hover:#f1f4f9;
+  --border:#e4e7ec; --border-strong:#cfd5df;
+  --text:#0f172a; --text-2:#5b6474; --text-3:#8a93a3;
+  --tooltip-bg:#0f172a; --tooltip-text:#ffffff;
+  --overlay:rgba(15,23,42,.45);
+  --skeleton-a:#eceff4; --skeleton-b:#f7f8fb;
+
+  /* Shape & elevation */
+  --radius-sm:8px; --radius:10px; --radius-lg:12px; --radius-full:999px;
+  --shadow-sm:0 1px 2px rgba(16,24,40,.05);
+  --shadow:0 1px 3px rgba(16,24,40,.08),0 1px 2px rgba(16,24,40,.04);
+  --shadow-lg:0 16px 40px rgba(16,24,40,.16);
+  --focus-ring:0 0 0 3px rgba(67,56,202,.30);
+  --focus-ring-danger:0 0 0 3px rgba(220,38,38,.28);
+
+  /* Layout */
+  --sidebar-w:248px; --sidebar-w-collapsed:72px; --header-h:60px;
+
+  /* Spacing scale */
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:20px; --sp-6:24px; --sp-8:32px;
+
+  /* Typography */
+  --font:"Inter","Segoe UI",-apple-system,BlinkMacSystemFont,Roboto,"Helvetica Neue",Arial,sans-serif;
+  --fs-xs:12px; --fs-sm:13px; --fs-md:14px; --fs-lg:16px; --fs-xl:20px; --fs-2xl:24px;
+  color-scheme:light;
+}
+[data-theme="dark"]{
+  --primary:#818cf8; --primary-hover:#a5b4fc; --primary-active:#c7d2fe;
+  --primary-soft:rgba(129,140,248,.15); --primary-text:#c7d2fe; --on-primary:#0b1020;
+  --success:#4ade80; --success-soft:rgba(74,222,128,.13); --success-text:#86efac; --on-success:#052e16;
+  --warning:#fbbf24; --warning-soft:rgba(251,191,36,.13); --warning-text:#fcd34d;
+  --danger:#f87171; --danger-hover:#fca5a5; --danger-soft:rgba(248,113,113,.14); --danger-text:#fca5a5; --on-danger:#2a0909;
+  --info:#60a5fa; --info-soft:rgba(96,165,250,.14); --info-text:#93c5fd;
+  --neutral-soft:#1d2539; --neutral-text:#b4bccd;
+  --bg:#0b1020; --surface:#121829; --surface-2:#0f1524; --surface-hover:#1a2236;
+  --border:#242d44; --border-strong:#34405c;
+  --text:#e7eaf3; --text-2:#a3abbf; --text-3:#737c93;
+  --tooltip-bg:#e7eaf3; --tooltip-text:#0b1020;
+  --overlay:rgba(0,0,0,.6);
+  --skeleton-a:#19203300; --skeleton-a:#192033; --skeleton-b:#232c43;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.4);
+  --shadow:0 1px 3px rgba(0,0,0,.5);
+  --shadow-lg:0 16px 40px rgba(0,0,0,.6);
+  --focus-ring:0 0 0 3px rgba(129,140,248,.40);
+  --focus-ring-danger:0 0 0 3px rgba(248,113,113,.35);
+  color-scheme:dark;
+}

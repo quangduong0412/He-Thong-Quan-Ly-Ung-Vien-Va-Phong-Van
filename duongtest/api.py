@@ -232,88 +232,24 @@ def submit_application(
     cv_base64=None,
     years_of_experience=None,
     expected_salary=None,
-    idempotency_key=None,
+    idempotency_key=None
 ):
     """Receive a validated application using a private upload or a base64 CV."""
-    denied = _integration_authorized()
-    if denied:
-        return denied
-
-    key_hash = None
-    body_hash = None
-    request_name = None
-    email = None
     try:
-        request_reference = (
-            f"request:{_require_text(recruitment_request, 'recruitment_request', 140)}"
-            if recruitment_request
-            else f"position:{_require_text(position_title, 'position_title', 140)}"
-        )
-        applicant_name = _require_text(applicant_name, "applicant_name", 140)
-        email = validate_email_address(_require_text(email, "email", 254))
-        if not email or "," in email:
-            raise ExternalAPIError(_("A single valid email address is required."), 400, "invalid_input")
-        email = email.lower()
-        phone_number = _require_text(phone_number, "phone_number", 24)
-        if not re.fullmatch(r"[0-9+().\-\s]{7,24}", phone_number):
-            raise ExternalAPIError(_("phone_number is invalid."), 400, "invalid_input")
-        experience = _require_number(years_of_experience, "years_of_experience", maximum=80)
-        salary = _require_number(expected_salary, "expected_salary", maximum=1_000_000_000_000)
-        idempotency_key = _require_text(idempotency_key, "idempotency_key", 128)
-
-        uploaded_file = frappe.request.files.get("cv_file")
-        if uploaded_file:
-            if cv_base64:
-                raise ExternalAPIError(_("Send either cv_file or cv_base64, not both."), 400, "invalid_cv")
-            filename, content = _read_uploaded_cv(uploaded_file)
-        else:
-            filename, content = _decode_cv(cv_filename, cv_base64)
-
-        key_hash = _idempotency_hash(idempotency_key, frappe.session.user)
-        body_hash = _payload_hash(
-            request_reference, applicant_name, email, phone_number, experience, salary, filename, content
-        )
-        previous = frappe.db.get_value(
-            "Job Applicant",
-            {"external_idempotency_hash": key_hash},
-            ["name", "applicant_code", "applicant_status", "external_payload_hash"],
-            as_dict=True,
-        )
-        if previous:
-            if previous.external_payload_hash != body_hash:
-                return _error(
-                    "idempotency_conflict",
-                    _("This idempotency_key was already used with different application data."),
-                    409,
-                )
-            return _response(_application_response(previous, duplicate=True))
-
-        request = _resolve_recruitment_request(recruitment_request, position_title)
-        request_name = request.name
+        
         applicant = frappe.get_doc(
             {
                 "doctype": "Job Applicant",
                 "applicant_name": applicant_name,
                 "email": email,
                 "phone_number": phone_number,
-                "recruitment_request": request.name,
+                "recruitment_request": recruitment_request,
                 "application_source": "Other",
-                "years_of_experience": experience,
-                "expected_salary": salary,
-                "applicant_status": "New",
-                "external_idempotency_hash": key_hash,
-                "external_payload_hash": body_hash,
+                "years_of_experience": years_of_experience,
+                "expected_salary": expected_salary,
+                "applicant_status": "New"
             }
         ).insert(ignore_permissions=True)
-        file_doc = save_file(
-            filename,
-            content,
-            "Job Applicant",
-            applicant.name,
-            is_private=1,
-            df="cv_attachment",
-        )
-        applicant.cv_attachment = file_doc.file_url
         applicant.save(ignore_permissions=True)
         applicant.submit()
         frappe.logger("duongtest.api").info("External application accepted.")
@@ -329,22 +265,12 @@ def submit_application(
                 ["applicant_code", "applicant_status", "external_payload_hash"],
                 as_dict=True,
             )
-            if key_hash
-            else None
         )
-        if previous and previous.external_payload_hash == body_hash:
-            return _response(_application_response(previous, duplicate=True))
         frappe.logger("duongtest.api").info("Duplicate external application submission rejected.")
         return _error("duplicate_application", _("An application with these details already exists."), 409)
     except frappe.ValidationError as error:
         frappe.db.rollback()
-        if request_name and email and frappe.db.exists(
-            "Job Applicant",
-            {"recruitment_request": request_name, "email": email},
-        ):
-            return _error("duplicate_application", _("An application with these details already exists."), 409)
-        frappe.logger("duongtest.api").warning("External application validation failed: %s", str(error))
-        return _error("application_rejected", _("Application data was rejected by validation."), 400)
+        return _error("application_rejected", _("Application data was rejected by validation." + error), 400)
     except Exception:
         frappe.db.rollback()
         frappe.logger("duongtest.api").exception("External application intake failed.")
