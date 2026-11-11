@@ -3,6 +3,9 @@
 /* --------------------------------------------------- RECRUITMENT REQUEST LIST */
 PAGES.requests = () => {
   const f = state.req.filters;
+  const requests = state.req.records || [];
+  const states = [...new Set([...REQ_STATES, ...requests.map(r=>r.state).filter(Boolean)])];
+  const departments = [...new Set([...DEPTS, ...requests.map(r=>r.dept).filter(Boolean)])];
   const actions = [
     PERM.exportData()?btn('Export',{ic:'download',action:'exportRequests'}):'',
     PERM.createRequest()?btn('New Request',{variant:'primary',ic:'plus',action:'newRequest'}):'',
@@ -12,8 +15,8 @@ PAGES.requests = () => {
     <!-- React component: FilterPanel -->
     <div class="filter-panel ${state.req.showFilters?'show':''}" id="req-filters" role="search" aria-label="Lọc yêu cầu tuyển dụng">
       ${field({id:'rf-search',label:'Search',control:`<div class="input-wrap prefix">${icon('search')}${input('rf-search',{value:f.search,placeholder:'Code, position, requester…',attrs:'data-enter="applyReqFilter"'})}</div>`})}
-      ${field({id:'rf-state',label:'Workflow State',control:select('rf-state',[{value:'__open',label:'All open'},{value:'__pending',label:'All pending'},...REQ_STATES],{value:f.state,placeholder:'All states'})})}
-      ${field({id:'rf-dept',label:'Department',control:select('rf-dept',DEPTS,{value:f.dept,placeholder:'All departments'})})}
+      ${field({id:'rf-state',label:'Workflow State',control:select('rf-state',[{value:'__open',label:'All open'},{value:'__pending',label:'All pending'},...states],{value:f.state,placeholder:'All states'})})}
+      ${field({id:'rf-dept',label:'Department',control:select('rf-dept',departments,{value:f.dept,placeholder:'All departments'})})}
       ${field({id:'rf-priority',label:'Priority',control:select('rf-priority',PRIORITIES,{value:f.priority,placeholder:'All priorities'})})}
       ${field({id:'rf-emp',label:'Employment Type',control:select('rf-emp',EMP_TYPES,{value:f.empType,placeholder:'All types'})})}
       ${field({id:'rf-from',label:'Request Date From',control:input('rf-from',{type:'date',value:f.from})})}
@@ -25,7 +28,7 @@ PAGES.requests = () => {
         <button class="btn btn-secondary btn-sm filter-toggle" data-action="toggleFilters" data-ns="req" aria-expanded="${state.req.showFilters}" aria-controls="req-filters">${icon('filter')}Bộ lọc</button>
         <span id="req-selection" class="small muted">${selectionText()}</span>
       </div>
-      <label class="switch small" data-tip="Mô phỏng: bật để xem trạng thái tải"><input type="checkbox" role="switch" data-change="toggleReqLoading" ${state.req.simLoading?'checked':''}><span>Mô phỏng tải dữ liệu</span></label>
+      ${btn('Refresh',{ic:'refresh',action:'refreshRequests',disabled:state.req.loading})}
     </div>
     <div id="req-results">${reqResults()}</div>
   </div>`;
@@ -36,7 +39,7 @@ function selectionText(){
 }
 function filterRequests(){
   const f = state.req.filters, q = norm(f.search.trim());
-  return REQUESTS.filter(r =>
+  return (state.req.records || []).filter(r =>
     (!q || norm(`${r.code} ${r.position} ${r.title} ${r.requester} ${r.dept}`).includes(q)) &&
     (!f.state || (f.state==='__open' ? OPEN_STATES.includes(r.state) : f.state==='__pending' ? r.state.startsWith('Pending') : r.state===f.state)) &&
     (!f.dept || r.dept===f.dept) && (!f.priority || r.priority===f.priority) && (!f.empType || r.empType===f.empType) &&
@@ -44,7 +47,8 @@ function filterRequests(){
   ).sort((a,b)=>b.requestDate.localeCompare(a.requestDate));
 }
 function reqResults(){
-  if(state.req.simLoading || state.req.busy) return skeletonTable(10,6);
+  if(state.req.loading) return skeletonTable(10,6);
+  if(state.req.loadError) return `<div class="empty-state" role="alert"><div class="empty-title">Không tải được dữ liệu</div><p>${esc(state.req.loadError)}</p>${btn('Thử lại',{variant:'primary',ic:'refresh',action:'refreshRequests'})}</div>`;
   const list = filterRequests();
   if(!list.length) return emptyState({ic:'search', title:'No requests found', text:'Không có yêu cầu nào khớp với bộ lọc hiện tại. Thử thay đổi từ khóa hoặc bỏ bớt điều kiện lọc.', actions:btn('Reset filters',{action:'resetReqFilter',ic:'refresh'})+(PERM.createRequest()?btn('New Request',{variant:'primary',ic:'plus',action:'newRequest'}):'')});
   const rows = paginate(list,'req');
@@ -55,18 +59,18 @@ function reqResults(){
       <th class="w-check"><input type="checkbox" data-action="selectAllReq" aria-label="Chọn tất cả trên trang này" ${allSel?'checked':''}></th>
       <th>Mã yêu cầu</th><th>Vị trí</th><th>Phòng ban</th><th class="num">Số lượng</th><th class="num">Đã tuyển</th><th>Mức độ ưu tiên</th><th>Trạng thái quy trình</th><th>Ngày yêu cầu</th><th>Ngày bắt đầu dự kiến</th><th class="actions-col"><span class="sr-only">Thao tác</span></th>
     </tr></thead>
-    <tbody>${rows.map(r=>{ const sel=state.req.selected.has(r.code); return `<tr class="clickable ${sel?'selected':''}" tabindex="0" data-action="openRequest" data-code="${r.code}" aria-label="${r.code} ${esc(labelVi(r.position))}">
-      <td><input type="checkbox" data-action="selectReq" data-code="${r.code}" aria-label="Chọn ${r.code}" ${sel?'checked':''}></td>
-      <td><span class="code">${r.code}</span></td>
-      <td><div class="cell-main">${esc(labelVi(r.position))}</div><div class="cell-sub">${esc(r.requester)} · ${esc(labelVi(r.empType))}</div></td>
+    <tbody>${rows.map(r=>{ const sel=state.req.selected.has(r.code); const recordUrl=`/app/recruitment-request/${encodeURIComponent(r.code)}`; return `<tr class="${sel?'selected':''}">
+      <td><input type="checkbox" data-action="selectReq" data-code="${esc(r.code)}" aria-label="Chọn ${esc(r.code)}" ${sel?'checked':''}></td>
+      <td><a class="code" href="${recordUrl}">${esc(r.code)}</a></td>
+      <td><div class="cell-main">${esc(labelVi(r.position))}</div><div class="cell-sub">${esc(r.title)} · ${esc(r.requester)} · ${esc(labelVi(r.empType))}</div></td>
       <td>${esc(r.dept)}</td>
       <td class="num">${r.headcount}</td>
-      <td class="num">${r.hired}<span class="mini-progress" aria-hidden="true"><span style="width:${r.hired/r.headcount*100}%"></span></span></td>
+      <td class="num">${r.hired}<span class="mini-progress" aria-hidden="true"><span style="width:${r.headcount?Math.min(r.hired/r.headcount*100,100):0}%"></span></span></td>
       <td>${badge(r.priority)}</td>
       <td>${badge(r.state)}</td>
       <td>${fmtDate(r.requestDate)}</td>
       <td>${fmtDate(r.startDate)}</td>
-      <td class="actions-col"><button class="icon-btn sm" data-action="reqMenu" data-code="${r.code}" aria-label="Thao tác khác cho ${r.code}" aria-haspopup="menu">${icon('more')}</button></td>
+      <td class="actions-col"><a class="icon-btn sm" href="${recordUrl}" aria-label="Mở yêu cầu ${esc(r.code)}">${icon('eye')}</a></td>
     </tr>`;}).join('')}</tbody>
   </table></div>${pager('req', list.length)}`;
 }

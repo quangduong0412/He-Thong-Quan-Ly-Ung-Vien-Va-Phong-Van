@@ -12,7 +12,7 @@ function copyPrototypeAssets() {
   let outDir = ''
   const projectRoot = fileURLToPath(new URL('.', import.meta.url))
   const files = [
-    'auth.js', 'main.js', 'data.js', 'state.js', 'utils.js', 'components.js', 'router.js', 'actions.js',
+    'auth.js', 'main.js', 'data.js', 'state.js', 'job_applicant.js', 'recruitment_requests.js', 'utils.js', 'components.js', 'router.js', 'actions.js',
   ]
 
   /** Vân tay nội dung của một file nguồn; đổi khi file đổi, giữ nguyên khi không đổi. */

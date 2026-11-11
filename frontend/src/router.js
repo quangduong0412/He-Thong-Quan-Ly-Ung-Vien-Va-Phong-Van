@@ -16,6 +16,8 @@ function navigate(page, params={}, opts={}){
   }
   if(page==='settings') state.settingsDraft = null;
   state.page = page; state.params = params;
+  if(page==='requests') loadRecruitmentRequests();
+  if(page==='applicants') loadJobApplicants();
   closeMenu(); closeDrawer(true); closeMobileNav(); hideSearch();
   render();
   window.scrollTo(0,0);

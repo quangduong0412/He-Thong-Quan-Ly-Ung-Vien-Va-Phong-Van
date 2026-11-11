@@ -129,18 +129,23 @@ var ACTIONS = {
   newRequest(){ state.form = newFormState(); state.formErrors={}; state.formDirty=false; navigate('requestForm'); },
   openRequest(el, e){ if(e) e.preventDefault(); navigate('requestDetail',{code:el.dataset.code}); },
   async applyReqFilter(){
+    if(state.req.loading) return;
     const v = id => $('#'+id).value;
     state.req.filters = {search:v('rf-search'), state:v('rf-state'), dept:v('rf-dept'), priority:v('rf-priority'), empType:v('rf-emp'), from:v('rf-from'), to:v('rf-to')};
     if(state.req.filters.from && state.req.filters.to && state.req.filters.from>state.req.filters.to){ setFieldError($('#req-filters'),'rf-to','Ngày kết thúc phải sau ngày bắt đầu.'); return; }
     setFieldError($('#req-filters'),'rf-to',null);
-    state.req.page=1; state.req.busy=true; rerender('req'); $('#req-selection').innerHTML='Đang tải…';
-    await sleep(600); state.req.busy=false; rerender('req'); $('#req-selection').innerHTML=selectionText();
+    state.req.page=1;
+    await loadRecruitmentRequests(true);
+    if(state.page === 'requests'){
+      const selection = $('#req-selection');
+      if(selection) selection.innerHTML=selectionText();
+    }
   },
-  resetReqFilter(){ state.req.filters={search:'',state:'',dept:'',priority:'',empType:'',from:'',to:''}; state.req.page=1; render(); toast('info','Đã xóa bộ lọc'); },
+  async resetReqFilter(){ state.req.filters={search:'',state:'',dept:'',priority:'',empType:'',from:'',to:''}; state.req.page=1; toast('info','Đã xóa bộ lọc'); await loadRecruitmentRequests(true); },
   selectReq(el){ const c=el.dataset.code; state.req.selected.has(c)?state.req.selected.delete(c):state.req.selected.add(c); rerender('req'); $('#req-selection').innerHTML=selectionText(); },
   selectAllReq(el){ const rows = paginate(filterRequests(),'req'); const all = rows.every(r=>state.req.selected.has(r.code)); rows.forEach(r=> all?state.req.selected.delete(r.code):state.req.selected.add(r.code)); rerender('req'); $('#req-selection').innerHTML=selectionText(); },
   clearSelection(){ state.req.selected.clear(); rerender('req'); $('#req-selection').innerHTML=selectionText(); },
-  bulkExport(){ const rows=REQUESTS.filter(r=>state.req.selected.has(r.code)); downloadCSV('yeu_cau_tuyen_dung_da_chon.csv',['Mã yêu cầu','Vị trí','Phòng ban','Số lượng cần tuyển','Đã tuyển','Mức độ ưu tiên','Trạng thái','Ngày yêu cầu','Ngày bắt đầu dự kiến'],rows.map(r=>[r.code,labelVi(r.position),r.dept,r.headcount,r.hired,labelVi(r.priority),labelVi(r.state),r.requestDate,r.startDate])); },
+  bulkExport(){ const rows=filterRequests().filter(r=>state.req.selected.has(r.code)); downloadCSV('yeu_cau_tuyen_dung_da_chon.csv',['Mã yêu cầu','Vị trí','Phòng ban','Số lượng cần tuyển','Đã tuyển','Mức độ ưu tiên','Trạng thái','Ngày yêu cầu','Ngày bắt đầu dự kiến'],rows.map(r=>[r.code,labelVi(r.position),r.dept,r.headcount,r.hired,labelVi(r.priority),labelVi(r.state),r.requestDate,r.startDate])); },
   exportRequests(){ const rows=filterRequests(); downloadCSV('yeu_cau_tuyen_dung.csv',['Mã yêu cầu','Vị trí','Phòng ban','Số lượng cần tuyển','Đã tuyển','Mức độ ưu tiên','Trạng thái','Ngày yêu cầu','Ngày bắt đầu dự kiến'],rows.map(r=>[r.code,labelVi(r.position),r.dept,r.headcount,r.hired,labelVi(r.priority),labelVi(r.state),r.requestDate,r.startDate])); },
   reqMenu(el){
     const r = findReq(el.dataset.code), A = reqActions(r);
@@ -174,10 +179,17 @@ var ACTIONS = {
   cancelForm(){ const back = state.form && state.form.code ? ['requestDetail',{code:state.form.code}] : ['requests',{}]; navigate(back[0], back[1]); },
   /* Applicants */
   openApplicant(el, e){ if(e) e.preventDefault(); navigate('applicantDetail',{code:el.dataset.code}); },
+  refreshApplicants(){ state.app.records=null; loadJobApplicants(true); },
+  refreshRequests(){ loadRecruitmentRequests(true); },
   setAppView(el){ state.app.view=el.dataset.view; render(); },
   resetAppFilter(){ state.app.filters={search:'',position:'',dept:'',status:'',source:'',hr:''}; state.app.page=1; render(); },
   appMenu(el){
-    const a = findApp(el.dataset.code), m = PERM.manageApplicants(), closed=['Rejected','Hired'].includes(a.stage);
+    const a = findApp(el.dataset.code);
+    if(a.isLive){
+      openMenu(el,[{label:'Mở hồ sơ trong Frappe Desk',icon:'eye',action:'openApplicantInDesk',data:{code:a.docName}}]);
+      return;
+    }
+    const m = PERM.manageApplicants(), closed=['Rejected','Hired'].includes(a.stage);
     openMenu(el, [
       {label:'Xem hồ sơ', icon:'eye', action:'openApplicant', data:{code:a.code}},
       {label:'Lên lịch phỏng vấn', icon:'calendar', action:'openSchedule', data:{app:a.code}, disabled:!PERM.scheduleInterview()||closed},
@@ -190,6 +202,7 @@ var ACTIONS = {
       {label:'Từ chối ứng viên', icon:'userX', action:'rejectApplicant', data:{code:a.code}, danger:true, disabled:!m||closed},
     ], {width:240});
   },
+  openApplicantInDesk(el){ location.href=`/app/job-applicant/${encodeURIComponent(el.dataset.code)}`; },
   moveStage(el){ closeMenu(); const a=findApp(el.dataset.code); const from=a.stage; a.stage=el.dataset.stage; a.audit=(a.audit||[]); a.audit.push({actor:currentUser().user,role:state.role,time:nowStamp(),action:'Stage changed',from,to:a.stage,changes:[]}); toast('success','Đã cập nhật giai đoạn',`${a.name}: ${labelVi(from)} → ${labelVi(a.stage)}`); render(); },
   async rejectApplicant(el){
     closeMenu(); const a=findApp(el.dataset.code);
@@ -277,7 +290,6 @@ var ACTIONS = {
 };
 var CHANGES = {
   pageSize(el){ const ns=el.dataset.ns; state[ns].size=+el.value; state[ns].page=1; rerender(ns); },
-  toggleReqLoading(el){ state.req.simLoading = el.checked; rerender('req'); toast('info', el.checked?'Đã bật hiệu ứng tải':'Đã tắt hiệu ứng tải'); },
   toggleRepEmpty(el){ state.rep.empty = el.checked; rerender('report'); },
   formField(el){ setFormValue(el.dataset.name, el.value); },
   critField(el){ const c=state.form.criteria[+el.dataset.idx]; c[el.dataset.key] = el.type==='checkbox' ? el.checked : el.value; markDirty(); updateCritSummary(); },

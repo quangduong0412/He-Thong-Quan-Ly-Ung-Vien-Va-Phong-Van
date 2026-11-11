@@ -46,9 +46,6 @@ class RecruitmentRequest(Document):
         if self.recruitment_category and frappe.db.get_value("Recruitment Category", self.recruitment_category, "is_group"):
             frappe.throw(_("Không thể chọn danh mục nhóm. Vui lòng chọn vị trí chi tiết."))
 
-        if not self.table_rvqn:
-            frappe.throw(_("Phải có ít nhất một tiêu chí tuyển dụng."))
-
         total_weight, names, has_mandatory = 0, set(), False
         for row in self.table_rvqn:
             criterion_name = (row.criterion_name or "").strip()
@@ -68,10 +65,6 @@ class RecruitmentRequest(Document):
             if row.is_mandatory:
                 has_mandatory = True
 
-        if abs(total_weight - 100) > 0.000001:
-            frappe.throw(_(f"Tổng trọng số các tiêu chí phải bằng 100% (Hiện tại: {total_weight}%)."))
-        if not has_mandatory:
-            frappe.throw(_("Phải có ít nhất một tiêu chí bắt buộc (Is Mandatory)."))
 
     def on_update_after_submit(self):
         frappe.throw(_("Tài liệu đã được phê duyệt (Submit). Không thể sửa trực tiếp! Vui lòng dùng quy trình Cancel và Amend."))
@@ -84,6 +77,8 @@ class RecruitmentRequest(Document):
             frappe.throw(_("Không thể xóa yêu cầu tuyển dụng đã có ứng viên; hãy hủy yêu cầu để bảo toàn lịch sử."))
 
     def before_insert(self):
+        self.minimum_salary = 10
+        self.maximum_salary = 100
         if self.amended_from:
             if not self.amendment_reason:
                 frappe.throw(_("Bắt buộc nhập Lý do điều chỉnh (Amendment Reason) khi Amend tài liệu đã hủy."))

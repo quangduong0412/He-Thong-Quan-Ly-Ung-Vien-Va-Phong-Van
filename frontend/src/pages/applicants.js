@@ -4,22 +4,27 @@
 function nextInterview(a){ const n = INTERVIEWS.filter(i=>i.app===a.code && i.status==='Scheduled' && i.date>=TODAY).sort((x,y)=>(x.date+x.start).localeCompare(y.date+y.start))[0]; return n; }
 function filterApplicants(ignoreStage){
   const f = state.app.filters, q = norm(f.search.trim());
-  return APPLICANTS.filter(a=>(!q || norm(`${a.code} ${a.name} ${a.email} ${a.position}`).includes(q)) && (!f.position||a.position===f.position) && (!f.dept||a.dept===f.dept) && (ignoreStage || !f.status||a.stage===f.status) && (!f.source||a.source===f.source) && (!f.hr||a.hr===f.hr))
+  return (state.app.records || []).filter(a=>(!q || norm(`${a.code} ${a.name} ${a.email} ${a.position}`).includes(q)) && (!f.position||a.position===f.position) && (!f.dept||a.dept===f.dept) && (ignoreStage || !f.status||a.stage===f.status) && (!f.source||a.source===f.source) && (!f.hr||a.hr===f.hr))
     .sort((a,b)=>b.applied.localeCompare(a.applied));
 }
 PAGES.applicants = () => {
   const f = state.app.filters, s = state.app;
-  const positions = [...new Set(APPLICANTS.map(a=>a.position))];
+  const applicants = state.app.records || [];
+  const positions = [...new Set(applicants.map(a=>a.position).filter(Boolean))];
+  const departments = [...new Set(applicants.map(a=>a.dept).filter(Boolean))];
+  const sources = [...new Set(applicants.map(a=>a.source).filter(Boolean))];
+  const hrOfficers = [...new Set(applicants.map(a=>a.hr).filter(Boolean))];
+  const statuses = [...new Set(applicants.map(a=>a.stage).filter(Boolean))];
   const actions = [PERM.scheduleInterview()?btn('Schedule Interview',{ic:'calendar',action:'openSchedule'}):'', PERM.manageApplicants()?btn('Add Applicant',{variant:'primary',ic:'plus',action:'mockAddApplicant'}):''].join('');
   return `${pageHeader('Applicants','Quản lý ứng viên theo từng giai đoạn tuyển dụng.',actions)}
   <div class="card">
     <div class="filter-panel ${s.showFilters?'show':''}" id="app-filters" role="search" aria-label="Lọc ứng viên">
       ${field({id:'af-search',label:'Search applicant',control:`<div class="input-wrap prefix">${icon('search')}${input('af-search',{value:f.search,placeholder:'Name, code, email…',attrs:'data-input="appFilter" data-key="search"'})}</div>`})}
       ${field({id:'af-position',label:'Position',control:select('af-position',positions,{value:f.position,placeholder:'All positions',attrs:'data-change="appFilter" data-key="position"'})})}
-      ${field({id:'af-dept',label:'Department',control:select('af-dept',DEPTS,{value:f.dept,placeholder:'All departments',attrs:'data-change="appFilter" data-key="dept"'})})}
-      ${field({id:'af-status',label:'Applicant Status',control:select('af-status',STAGES,{value:f.status,placeholder:'All statuses',attrs:'data-change="appFilter" data-key="status"'})})}
-      ${field({id:'af-source',label:'Application Source',control:select('af-source',SOURCES,{value:f.source,placeholder:'All sources',attrs:'data-change="appFilter" data-key="source"'})})}
-      ${field({id:'af-hr',label:'Assigned HR Officer',control:select('af-hr',HR_OFFICERS,{value:f.hr,placeholder:'Anyone',attrs:'data-change="appFilter" data-key="hr"'})})}
+      ${field({id:'af-dept',label:'Department',control:select('af-dept',departments,{value:f.dept,placeholder:'All departments',attrs:'data-change="appFilter" data-key="dept"'})})}
+      ${field({id:'af-status',label:'Applicant Status',control:select('af-status',statuses,{value:f.status,placeholder:'All statuses',attrs:'data-change="appFilter" data-key="status"'})})}
+      ${field({id:'af-source',label:'Application Source',control:select('af-source',sources,{value:f.source,placeholder:'All sources',attrs:'data-change="appFilter" data-key="source"'})})}
+      ${field({id:'af-hr',label:'Assigned HR Officer',control:select('af-hr',hrOfficers,{value:f.hr,placeholder:'Anyone',attrs:'data-change="appFilter" data-key="hr"'})})}
     </div>
     <div class="table-toolbar">
       <div class="row row-wrap">
@@ -27,10 +32,10 @@ PAGES.applicants = () => {
         <span class="small muted" id="app-count"></span>
         ${Object.values(f).some(Boolean)?btn('Clear filters',{variant:'ghost',size:'btn-sm',ic:'x',action:'resetAppFilter'}):''}
       </div>
-      <div class="segmented" role="group" aria-label="Chế độ xem">
+      <div class="row row-wrap"><button class="btn btn-secondary btn-sm" data-action="refreshApplicants" ${s.loading?'disabled':''}>${icon('refresh')}Làm mới</button><div class="segmented" role="group" aria-label="Chế độ xem">
         <button class="${s.view==='table'?'active':''}" data-action="setAppView" data-view="table" aria-pressed="${s.view==='table'}">${icon('list')}Bảng</button>
         <button class="${s.view==='kanban'?'active':''}" data-action="setAppView" data-view="kanban" aria-pressed="${s.view==='kanban'}">${icon('kanban')}Kanban</button>
-      </div>
+      </div></div>
     </div>
     <div id="app-results">${appResults()}</div>
   </div>`;
@@ -38,6 +43,8 @@ PAGES.applicants = () => {
 AFTER.applicants = () => updateAppCount();
 function updateAppCount(){ const el=$('#app-count'); if(el) el.textContent = `${filterApplicants(state.app.view==='kanban').length} ứng viên`; }
 function appResults(){
+  if(state.app.loading) return skeletonTable(8,6);
+  if(state.app.loadError) return `<div class="empty-state" role="alert"><div class="empty-title">Không tải được dữ liệu ứng viên</div><p>${esc(state.app.loadError)}</p>${btn('Thử lại',{variant:'primary',ic:'refresh',action:'refreshApplicants'})}</div>`;
   if(state.app.view==='kanban') return kanbanView();
   const list = filterApplicants();
   if(!list.length) return emptyState({ic:'search',title:'No applicants match your filters',text:'Thử từ khóa khác hoặc xóa bộ lọc.',actions:btn('Clear filters',{action:'resetAppFilter',ic:'refresh'})});
@@ -45,17 +52,17 @@ function appResults(){
   return `<!-- React component: ApplicantTable -->
   <div class="table-wrap"><table class="table" style="min-width:1200px">
     <thead><tr><th>Mã ứng viên</th><th>Tên ứng viên</th><th>Vị trí</th><th>Phòng ban</th><th>Nguồn</th><th>Nhân sự phụ trách</th><th>Giai đoạn hiện tại</th><th>Ngày ứng tuyển</th><th>Phỏng vấn tiếp theo</th><th class="actions-col"><span class="sr-only">Thao tác</span></th></tr></thead>
-    <tbody>${rows.map(a=>{ const n=nextInterview(a); return `<tr class="clickable" tabindex="0" data-action="openApplicant" data-code="${a.code}" aria-label="${esc(a.name)}">
-      <td><span class="code">${a.code}</span></td>
-      <td>${person(a.name,a.email)}</td>
+    <tbody>${rows.map(a=>{ const n=a.isLive?null:nextInterview(a); const code=a.docName||a.code; const detailUrl=a.isLive?`/app/job-applicant/${encodeURIComponent(a.docName)}`:'#applicant'; return `<tr class="clickable" tabindex="0" data-action="openApplicant" data-code="${esc(code)}" aria-label="${esc(a.name)}">
+      <td><a class="code" href="${detailUrl}" data-action="openApplicant" data-code="${esc(code)}">${esc(a.code)}</a></td>
+      <td><a href="${detailUrl}" data-action="openApplicant" data-code="${esc(code)}">${person(a.name,a.email)}</a></td>
       <td>${esc(labelVi(a.position))}</td><td>${esc(a.dept)}</td><td>${esc(labelVi(a.source))}</td><td>${esc(a.hr)}</td>
       <td>${badge(a.stage)}</td><td>${fmtDate(a.applied)}</td>
       <td>${n?`<div class="small strong">${fmtDate(n.date)} ${n.start}</div><div class="cell-sub">${esc(labelVi(n.round))}</div>`:'<span class="subtle">—</span>'}</td>
-      <td class="actions-col"><button class="icon-btn sm" data-action="appMenu" data-code="${a.code}" aria-label="Thao tác khác cho ${esc(a.name)}" aria-haspopup="menu">${icon('more')}</button></td>
+      <td class="actions-col"><button class="icon-btn sm" data-action="appMenu" data-code="${esc(a.docName||a.code)}" aria-label="Thao tác khác cho ${esc(a.name)}" aria-haspopup="menu">${icon('more')}</button></td>
     </tr>`;}).join('')}</tbody>
   </table></div>${pager('app',list.length)}`;
 }
-var KANBAN_STAGES = ['New','Screening','Interview Scheduled','Interviewing','Passed','Rejected','Offer Sent','Hired'];
+var KANBAN_STAGES = ['New','Screening','Interview Scheduled','Interviewing','Passed','Rejected','Offer Sent','Offer Declined','Hired'];
 function kanbanView(){
   const list = filterApplicants(true);
   return `<!-- React component: ApplicantKanban > KanbanColumn > ApplicantCard -->
@@ -63,15 +70,14 @@ function kanbanView(){
     const items = list.filter(a=>a.stage===st);
     return `<section class="kanban-col" aria-label="${labelVi(st)}, ${items.length} ứng viên">
       <div class="kanban-col-head"><h3><span class="badge-dot" style="width:8px;height:8px;color:${STAGE_COLOR(st)};opacity:${STAGE_OPACITY(st)}"></span>${labelVi(st)}</h3><span class="pill-count">${items.length}</span></div>
-      <div class="kanban-list">${items.length? items.map(a=>`<div class="k-card" role="button" tabindex="0" data-action="openApplicant" data-code="${a.code}" aria-label="${esc(a.name)}, ${esc(a.position)}">
-        <div class="k-card-top">${avatar(a.name)}<div class="grow" style="min-width:0"><div class="cell-main" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(a.name)}</div><div class="cell-sub">${esc(a.position)}</div></div><button class="icon-btn sm" data-action="appMenu" data-code="${a.code}" aria-label="Actions for ${esc(a.name)}" aria-haspopup="menu">${icon('moreH')}</button></div>
+      <div class="kanban-list">${items.length? items.map(a=>`<div class="k-card" role="button" tabindex="0" data-action="openApplicant" data-code="${esc(a.docName||a.code)}" aria-label="${esc(a.name)}, ${esc(a.position)}">
+        <div class="k-card-top">${avatar(a.name)}<div class="grow" style="min-width:0"><div class="cell-main" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(a.name)}</div><div class="cell-sub">${esc(a.position)}</div></div><button class="icon-btn sm" data-action="appMenu" data-code="${esc(a.docName||a.code)}" aria-label="Actions for ${esc(a.name)}" aria-haspopup="menu">${icon('moreH')}</button></div>
         <div class="k-meta"><span>${icon('building')}${esc(a.dept)}</span><span>${icon('calendar')}Ứng tuyển ${fmtDate(a.applied)}</span><span>${icon('user')}Nhân sự: ${esc(a.hr)}</span></div>
           <div class="k-tags">${a.tags.map(t=>`<span class="tag">${esc(labelVi(t))}</span>`).join('')}<span class="tag">${esc(labelVi(a.source))}</span></div>
         </div>`).join('') : '<div class="k-empty">Không có ứng viên</div>'}</div>
     </section>`;}).join('')}</div>`;
 }
 
-/* ---------------------------------------------------------- APPLICANT DETAIL */
 function fbStatus(iv){
   if(['Cancelled','No Show'].includes(iv.status)) return 'Not Required';
   if(['Scheduled','In Progress'].includes(iv.status)) return 'Not Started';
@@ -80,6 +86,7 @@ function fbStatus(iv){
 PAGES.applicantDetail = () => {
   const a = findApp(state.params.code);
   if(!a) return emptyState({ic:'alertCircle',variant:'error',title:'Applicant not found',actions:btn('Back',{action:'go',data:{page:'applicants'}})});
+  if(a.isLive) return liveApplicantDetail(a);
   const ivs = INTERVIEWS.filter(i=>i.app===a.code);
   const offer = OFFERS.find(o=>o.app===a.code && o.status!=='Cancelled') || OFFERS.find(o=>o.app===a.code);
   const t = state.tab.applicant;
@@ -111,6 +118,34 @@ PAGES.applicantDetail = () => {
     <div class="tab-panel" id="panel-applicant" role="tabpanel" aria-labelledby="tab-applicant-${t}">${APP_TABS[t](a,ivs,offer)}</div>
   </div>`;
 };
+function liveApplicantDetail(a){
+  const deskUrl=`/app/job-applicant/${encodeURIComponent(a.docName)}`;
+  const requestUrl=`/app/recruitment-request/${encodeURIComponent(a.reqCode)}`;
+  const cvName=a.cvAttachment ? a.cvAttachment.split('/').pop() : '';
+  return `<section class="card detail-header">
+    ${btn('Back',{variant:'ghost',size:'btn-sm',ic:'arrowLeft',action:'go',data:{page:'applicants'}})}
+    <div class="dh-main"><div class="applicant-hero">${avatar(a.name,'lg')}<div>
+      <div class="dh-code"><span class="code">${esc(a.code)}</span>${badge(a.stage,null,'badge-lg')}</div>
+      <h1 style="font-size:22px;font-weight:700;margin-top:4px">${esc(a.name)}</h1>
+      <div class="muted small">${esc(a.position)} · ${esc(a.dept)}</div>
+      <div class="contact-list"><span>${icon('mail')}<a href="mailto:${esc(a.email)}">${esc(a.email||'—')}</a></span><span>${icon('phone')}${esc(a.phone||'—')}</span><span>${icon('userCheck')}Nhân sự: ${esc(a.hr||'—')}</span></div>
+    </div></div><a class="btn btn-secondary" href="${deskUrl}">Mở trong Frappe Desk</a></div>
+  </section>
+  <div class="detail-grid mt-4"><div class="stack">
+    <section class="card"><div class="card-header"><h2 class="card-title">Thông tin ứng tuyển</h2></div><div class="card-body"><dl class="dl">
+      <div><dt>Mã hồ sơ</dt><dd>${esc(a.code)}</dd></div><div><dt>Yêu cầu tuyển dụng</dt><dd><a href="${requestUrl}">${esc(a.reqCode||'—')}</a></dd></div>
+      <div><dt>Vị trí</dt><dd>${esc(a.position||'—')}</dd></div><div><dt>Phòng ban</dt><dd>${esc(a.dept||'—')}</dd></div>
+      <div><dt>Nguồn ứng tuyển</dt><dd>${esc(labelVi(a.source)||'—')}</dd></div><div><dt>Ngày tạo hồ sơ</dt><dd>${fmtDate(a.applied)}</dd></div>
+      <div><dt>Trạng thái</dt><dd>${badge(a.stage)}</dd></div><div><dt>Chuyên viên phụ trách</dt><dd>${esc(a.hr||'—')}</dd></div>
+    </dl></div></section>
+    <section class="card"><div class="card-header"><h2 class="card-title">Thông tin hồ sơ</h2></div><div class="card-body"><dl class="dl">
+      <div><dt>Email</dt><dd>${esc(a.email||'—')}</dd></div><div><dt>Điện thoại</dt><dd>${esc(a.phone||'—')}</dd></div>
+      <div><dt>Kinh nghiệm</dt><dd>${a.exp} năm</dd></div><div><dt>Có thể bắt đầu</dt><dd>${fmtDate(a.available)}</dd></div>
+      ${PERM.seeSalary()&&a.expected!==null?`<div><dt>Mức lương mong muốn</dt><dd>${money(a.expected)}</dd></div>`:''}
+      <div class="full"><dt>CV đính kèm</dt><dd>${cvName?`<a href="${deskUrl}">${esc(cvName)}</a>`:'Chưa có CV đính kèm'}</dd></div>
+    </dl></div></section>
+  </div></div>`;
+}
 var APP_TABS = {
   overview:(a)=>`<div class="detail-grid">
     <div class="stack">

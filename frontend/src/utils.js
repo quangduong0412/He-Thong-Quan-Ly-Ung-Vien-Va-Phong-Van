@@ -319,7 +319,7 @@ var initials = name => { const p=String(name).trim().split(/\s+/); return ((p.le
 var firstName = name => String(name).trim().split(/\s+/).pop();
 var sleep = ms => new Promise(r=>setTimeout(r,ms));
 var findReq = c => REQUESTS.find(r=>r.code===c);
-var findApp = c => APPLICANTS.find(a=>a.code===c);
+var findApp = c => state.app.records?.find(a=>a.docName===c || a.code===c) || APPLICANTS.find(a=>a.code===c);
 var findInt = c => INTERVIEWS.find(i=>i.code===c);
 var findOffer = c => OFFERS.find(o=>o.code===c);
 /** Người đang đăng nhập (phiên Frappe); khi chưa biết phiên (`yarn dev`) thì dùng người mẫu theo vai trò. */
